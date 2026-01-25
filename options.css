@@ -32,6 +32,11 @@ body {
 .rule button:hover{
      background-color: #da190b;
 }
+
+.options {
+    margin-top: 10px
+}
+
 button {
     padding: 5px 10px;
     background-color: #4CAF50;
@@ -52,6 +57,65 @@ button:hover {
 .regex-warning {
     color: red;
     font-size: 0.8em;
+}
+
+.setting {
+    margin-bottom: 10px;
+}
+
+.settingLabel {
+    position: fixed;
+    display: inline;
+    margin-left: 10px;
+}
+
+.switch input {
+    display: none;
+}
+
+.slider {
+    display: inline-flex;
+    cursor: pointer;
+    background-color: #ccc;
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+
+.slider:before {
+    position: relative;
+    display: inline-flex;
+    content: "";
+    height: 17px;
+    width: 15px;
+    left: 4px;
+    background-color: white;
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+
+.slider.round {
+    border-radius: 17px;
+    width: 35px;
+    padding: 1px;
+}
+
+.slider.round:before {
+    border-radius: 50%;
+}
+
+
+input:checked + .slider {
+    background-color: #2196F3;
+}
+
+input:focus + .slider {
+    box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .slider:before {
+    -webkit-transform: translateX(13px);
+    -ms-transform: translateX(13px);
+    transform: translateX(13px);
 }
 
 /* Dark Theme Styles */

@@ -116,7 +116,7 @@ function saveRules() {
   browser.storage.sync.set({ redirectRules: rules })
       .then(() => {
           const status = document.createElement('div');
-          status.textContent = 'Options saved.';
+          status.textContent = 'Rules saved.';
           document.body.appendChild(status);
           setTimeout(() => { status.remove(); }, 2000);
       })
@@ -135,6 +135,38 @@ document.getElementById("addRule").addEventListener("click", async () => {
 });
 
 document.getElementById("saveRules").addEventListener("click", saveRules);
+
+/* Settings */
+
+async function loadSettings() {
+    const settingsContainer = document.getElementById("settingsContainer");
+    if (!settingsContainer) {
+        console.error("loadSettings: settingsContainer not found!");
+        return;
+    }
+
+    try {
+        const data = await browser.storage.sync.get("settingsList")
+        const settings = data.settingsList || [];
+
+        settings.forEach(setting => {
+            settingsContainer.getElementById(setting.id).name = setting.id;
+            settingsContainer.getElementById(setting.id).value = setting.value;
+        })
+
+    } catch (error) {
+        console.error("loadRules: Error retrieving rules:", error);
+    }
+}
+
+// Save an option on interaction
+document.getElementById('settingsContainer').addEventListener('input', (async (setting) => {
+    saveSettings(setting);
+}));
+
+function saveSettings(setting) {
+    // TODO: Implement
+}
 
 async function checkPermissions() {
   const hasPermissions = await browser.permissions.contains({
@@ -164,4 +196,5 @@ async function checkPermissions() {
 document.addEventListener("DOMContentLoaded", async () => {
   await checkPermissions(); //CHECK PERMISSIONS
   await loadRules();
+  await loadSettings();
 });
