@@ -67,7 +67,7 @@ async function handleRedirect(details) {
                         await browser.tabs.create({
                             url: details.url,
                             cookieStoreId: targetContainer.cookieStoreId,
-                            active: true // Make the new tab active
+                            active: true // TODO: Add settings toggle
                         });
 
                         // If the originating tab is a detected new tab page, close it.
@@ -104,9 +104,13 @@ browser.webRequest.onBeforeRequest.addListener(
     ["blocking"]
 );
 browser.runtime.onInstalled.addListener(() => {
-    browser.storage.sync.get("redirectRules").then(result => {
+    const storage = browser.storage;
+    storage.sync.get(["redirectRules", "settingsList"]).then(result => {
         if (!result.redirectRules) {
-            browser.storage.sync.set({ redirectRules: [] });
+            storage.sync.set({ redirectRules: [] });
+        }
+        if (!result.settingsList) {
+            storage.sync.set({ settingsList: [] });
         }
     });
 });
