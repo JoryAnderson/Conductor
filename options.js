@@ -138,6 +138,33 @@ document.getElementById("saveRules").addEventListener("click", saveRules);
 
 /* Settings */
 
+// TODO: setting.label undefined but all other object fields exist.
+function createSettingElement(setting) {
+    const settingDiv = document.createElement("div");
+    settingDiv.classList.add("setting");
+
+    const settingSwitch = document.createElement("label");
+    settingSwitch.classList.add("switch")
+
+    const settingInput = document.createElement("input");
+    settingInput.id = setting.name;
+    settingInput.checked = setting.value;
+    settingInput.type = "checkbox";
+
+    const settingSlider = document.createElement("span")
+    settingSlider.classList.add("slider", "round");
+
+    const settingLabel = document.createElement("span");
+    settingLabel.classList.add("setting-label");
+    settingLabel.textContent = setting.label;
+
+    settingSwitch.append(settingInput, settingSlider, settingLabel)
+    settingDiv.appendChild(settingSwitch)
+
+    return settingDiv;
+}
+
+// TODO: Unable to dynamically load settings similar to rules (rather do it here than in options.html)
 async function loadSettings() {
     const settingsContainer = document.getElementById("settingsContainer");
     if (!settingsContainer) {
@@ -147,11 +174,11 @@ async function loadSettings() {
 
     try {
         const data = await browser.storage.sync.get("settingsList")
-        const settings = data.settingsList || [];
+        const settings = data.settingsList || loadDefaultSettings;
 
         settings.forEach(setting => {
-            settingsContainer.getElementById(setting.id).name = setting.id;
-            settingsContainer.getElementById(setting.id).value = setting.value;
+            const settingElement = createSettingElement(setting);
+            settingsContainer.append(settingElement);
         })
 
     } catch (error) {
@@ -160,12 +187,55 @@ async function loadSettings() {
 }
 
 // Save an option on interaction
-document.getElementById('settingsContainer').addEventListener('input', (async (setting) => {
-    saveSettings(setting);
-}));
+document.getElementById('settingsContainer').addEventListener('input', saveSettings);
 
-function saveSettings(setting) {
-    // TODO: Implement
+//TODO: DOM not picking up label?
+function saveSettings() {
+    const settingsContainer = document.getElementById("settingsContainer");
+    if (!settingsContainer) {
+        console.error("saveRules: rulesContainer not found!");
+        return;
+    }
+
+    const settingsElements = settingsContainer.querySelectorAll(".setting");
+    const settings = [];
+
+    settingsElements.forEach(setting => {
+        const settingInput = setting.querySelector("input")
+        const settingSpanLabel = setting.querySelector("span .setting-label");
+
+        if (!settingInput) {
+            console.warn("saveSettings: input ID or value missing.");
+            return;
+        }
+
+        const settingName = settingInput.id;
+        const settingLabel = settingSpanLabel.textContent;
+        const settingValue = settingInput.checked || false;
+
+        if (settingName && settingLabel) {
+            settings.push({name: settingName, label: settingLabel, value: settingValue});
+        } else {
+            console.warn("settingsElements: Skipping setting due to issue obtaining ID, label or value from settingElement.");
+        }
+    });
+
+    browser.storage.sync.set({ settingsList: settings })
+        .then(() => {
+            const status = document.createElement('div');
+            status.textContent = 'Settings saved.';
+            document.body.appendChild(status);
+            setTimeout(() => { status.remove(); }, 2000);
+        })
+        .catch(error => console.error("saveRules: Error saving rules:", error));
+
+}
+
+// TODO: DOM not picking up label?
+function loadDefaultSettings() {
+    return [
+        {name: "isNewTabActive", label: "Focus on new containerized tab", value: true}
+    ];
 }
 
 async function checkPermissions() {

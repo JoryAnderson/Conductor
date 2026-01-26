@@ -12,8 +12,13 @@ async function handleRedirect(details) {
 
     try {
         const rules = await browser.storage.sync.get("redirectRules");
+        const settings = await browser.storage.sync.get("settingsList");
 
         if (!rules.redirectRules) {
+            return { cancel: false };
+        }
+
+        if (!settings.settingsList) {
             return { cancel: false };
         }
 
